@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Andrew's AI Chatbot</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      header {
+        background-color: #343a40;
+        color: white;
+        padding: 16px;
+        text-align: center;
+        font-size: 1.5em;
+      }
+
+      #chatBox {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+      }
+
+      .message {
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        border-radius: 12px;
+        max-width: 70%;
+        clear: both;
+      }
+
+      .user {
+        background-color: #007bff;
+        color: white;
+        margin-left: auto;
+        text-align: right;
+      }
+
+      .bot {
+        background-color: #e1e1e1;
+        color: black;
+        margin-right: auto;
+        text-align: left;
+      }
+
+      #chatInput {
+        display: flex;
+        padding: 10px;
+        background-color: #fff;
+      }
+
+      #messageInput {
+        flex: 1;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      button {
+        padding: 12px 20px;
+        margin-left: 10px;
+        border: none;
+        background-color: #28a745;
+        color: white;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <header>Talk to Andrew’s AI Assistant</header>
+    <div id="chatBox"></div>
+    <div id="chatInput">
+      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendMessage("user", message);
+        input.value = "";
+
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            appendMessage("bot", data.reply);
+          });
+      }
+
+      function appendMessage(sender, text) {
+        const chatBox = document.getElementById("chatBox");
+        const message = document.createElement("div");
+        message.className = `message ${sender}`;
+        message.innerText = text;
+        chatBox.appendChild(message);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    </script>
+  </body>
+</html>

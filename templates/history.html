@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat History</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background: #f8f9fa;
+      }
+      h1 {
+        text-align: center;
+      }
+      .log-entry {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        margin: 10px 0;
+      }
+      .user {
+        color: blue;
+      }
+      .bot {
+        color: green;
+      }
+      .timestamp {
+        font-size: 0.9em;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat History</h1>
+    {% for log in logs %}
+    <div class="log-entry">
+      <div class="{{ log.sender }}">
+        <strong>{{ log.sender.capitalize() }}:</strong> {{ log.message }}
+      </div>
+      <div class="timestamp">
+        ⏱ {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+      </div>
+    </div>
+    {% endfor %}
+  </body>
+</html>
