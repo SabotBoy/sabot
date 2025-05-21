@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from openai import OpenAI
-from datetime import datetime
+from datetime import datetime, timedelta
 from calendar_utils import create_event
 
 import os
