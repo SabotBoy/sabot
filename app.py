@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from openai import OpenAI
 from datetime import datetime
+from calendar_utils import create_event
 
 import os
 
@@ -26,15 +27,32 @@ def index():
     return render_template('chat.html')
 
 @app.route('/chat', methods=['POST'])
+#from flask import Flask, render_template, request, jsonify
+# openai import OpenAI
+#from datetime import datetime, timedelta
+#from calendar_utils import create_event
+
+# ... your app setup code
+
+@app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json['message']
-    
-    # Save user message
-    user_log = ChatLog(sender='user', message=user_input)
-    db.session.add(user_log)
 
+    # 🔍 Check if user is requesting a booking (simple logic for now)
+    if "book" in user_input.lower() and "meeting" in user_input.lower():
+        # Just a test — book a meeting for tomorrow at 10am
+        start_time = datetime.now() + timedelta(days=1)
+        start_time = start_time.replace(hour=10, minute=0, second=0, microsecond=0)
+        end_time = start_time + timedelta(hours=1)
+
+        event_link = create_event("Meeting with Andrew", start_time, end_time)
+
+        return jsonify({"reply": f"I've booked your meeting for tomorrow at 10AM. Here’s your calendar link: {event_link}"})
+
+    # (Fallback) Continue to GPT as usual
+    # Send to GPT if no match
     messages = [
-        {"role": "system", "content": "You are a helpful assistant for Andrew Henry’s customers."},
+        {"role": "system", "content": "You are a helpful assistant for Andrew Henry’s clients."},
         {"role": "user", "content": user_input}
     ]
 
@@ -44,14 +62,9 @@ def chat():
     )
 
     reply = response.choices[0].message.content.strip()
-    
-    # Save bot response
-    bot_log = ChatLog(sender='bot', message=reply)
-    db.session.add(bot_log)
-
-    db.session.commit()
-
     return jsonify({"reply": reply})
+
+
 
 @app.route('/history')
 def history():
