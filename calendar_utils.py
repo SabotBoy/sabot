@@ -8,20 +8,27 @@ from googleapiclient.discovery import build
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def get_calendar_service():
-    creds = None
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+    import base64
 
-    return build('calendar', 'v3', credentials=creds)
+    creds = None
+
+    # Read base64-encoded credentials from environment variable
+    creds_json = base64.b64decode(os.environ.get("GOOGLE_CREDENTIALS_B64")).decode()
+
+    # Write to a temporary JSON file
+    with open("credentials_temp.json", "w") as f:
+        f.write(creds_json)
+
+    # Use the temp file to authenticate
+    flow = InstalledAppFlow.from_client_secrets_file("credentials_temp.json", SCOPES)
+    creds = flow.run_local_server(port=0)
+
+    # Save token for reuse
+    with open("token.pickle", "wb") as token:
+        pickle.dump(creds, token)
+
+    return build("calendar", "v3", credentials=creds)
+
 
 def create_event(summary, start_datetime, end_datetime):
     service = get_calendar_service()
